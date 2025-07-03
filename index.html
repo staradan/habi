@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rule of Life</title>
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      background: #fdfaf6;
+      color: #3a3a3a;
+      max-width: 700px;
+      margin: auto;
+      padding: 30px 20px;
+      line-height: 1.6;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      margin-bottom: 10px;
+      color: #4a4e69;
+    }
+
+    h2 {
+      margin-top: 30px;
+      margin-bottom: 10px;
+      font-size: 1.4em;
+      color: #22223b;
+      border-left: 5px solid #c9ada7;
+      padding-left: 10px;
+    }
+
+    .section {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+      border: 1px solid #eee;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 10px;
+      accent-color: #9a8c98;
+      transform: scale(1.2);
+    }
+
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+      background: #fefefe;
+      resize: vertical;
+    }
+
+    ::selection {
+      background: #c9ada7;
+      color: white;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.8em;
+      margin-top: 40px;
+      color: #999;
+    }
+    button.secondary {
+  background: white;
+  color: #555;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.2s ease;
+  padding: 8px 20px;
+  font-size: 1em;
+}
+
+button.secondary:hover {
+  background: #f0f0f0;
+}
+  </style>
+</head>
+<body>
+  <h1>🕊️ My Rule of Life</h1>
+
+  <div class="section">
+    <h2>✝️ Morning</h2>
+    <label><input type="checkbox" class="habit" data-habit="morningOffering" /> Morning Offering</label>
+    <label><input type="checkbox" class="habit" data-habit="ourFather" /> Our Father</label>
+    <label><input type="checkbox" class="habit" data-habit="blueBook" /> Read Blue Book</label>
+    <label><input type="checkbox" class="habit" data-habit="morningBackExercises" /> Back Exercises</label>
+  </div>
+
+  <div class="section">
+    <h2>🕊️ Midday</h2>
+    <label><input type="checkbox" class="habit" data-habit="angelus" /> Angelus</label>
+    <label><input type="checkbox" class="habit" data-habit="spiritualReading" /> Spiritual Reading</label>
+    <label><input type="checkbox" class="habit" data-habit="divineMercy" /> Divine Mercy Chaplet</label>
+  </div>
+
+  <div class="section">
+    <h2>🌙 Evening</h2>
+    <label><input type="checkbox" class="habit" data-habit="rosary" /> Rosary</label>
+    <label><input type="checkbox" class="habit" data-habit="examen" /> 1 Page of Reading</label>
+  </div>
+
+  <div class="section">
+    <h2>⛪ Sacraments & Prayer</h2>
+    <label><input type="checkbox" class="habit" data-habit="dailyMass" /> Daily Mass</label>
+    <label><input type="checkbox" class="habit" data-habit="dailyHolyHour" /> Daily Holy Hour</label>
+    <label><input type="checkbox" class="habit" data-habit="weeklyConfession" /> Weekly Confession</label>
+  </div>
+
+  <div class="section">
+    <h2>📜 Daily Reflection + Letter to Mary</h2>
+    <textarea id="ruleText" placeholder="Disturbances, Highs, Lows, Mary"></textarea>
+  </div>
+
+  <div style="margin-top: 30px; max-width: 700px; margin-left: auto; margin-right: auto;">
+    <label for="jsonOutput" style="font-weight: bold; display: block; margin-bottom: 6px;">Today's Data (JSON):</label>
+    <textarea id="jsonOutput" rows="8" readonly style="
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-family: monospace;
+      background: #fefefe;
+      resize: vertical;
+    "></textarea>
+    <button id="copyJsonButton" style="
+    margin-top: 8px;
+    padding: 8px 16px;
+    font-size: 1em;
+    background: white;
+    color: #555;
+    border: 1.5px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background-color 0.2s ease;
+    " 
+    onmouseover="this.style.backgroundColor='#f0f0f0';" 
+    onmouseout="this.style.backgroundColor='white';"
+    >📋 Copy JSON</button>
+    <p id="copyStatus" style="font-size: 0.9em; color: #666; margin-top: 6px;"></p>
+  </div>
+
+  <div style="text-align: left; margin-top: 20px;">
+    <button id="saveButton" style="
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #9a8c98;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    ">
+      💾 Save Today
+    </button>
+
+    <button id="clearButton" class="secondary">
+    🧹 Clear Today
+  </button>
+
+    <p id="saveStatus" style="font-size: 0.9em; color: #666; margin-top: 8px;"></p>
+  </div>
+
+  
+
+  <footer>
+    Built with prayer ✝️
+  </footer>
+
+  <script>  
+    const now = new Date();
+    const today = now.getFullYear() + '-' +
+        String(now.getMonth() + 1).padStart(2, '0') + '-' +
+        String(now.getDate()).padStart(2, '0');
+    const saved = JSON.parse(localStorage.getItem("ruleOfLife")) || {};
+
+    document.querySelectorAll(".habit").forEach(input => {
+      input.checked = saved[input.dataset.habit] || false;
+      input.addEventListener("change", () => {
+        saved[input.dataset.habit] = input.checked;
+        localStorage.setItem("ruleOfLife", JSON.stringify(saved));
+      });
+    });
+
+    const ruleText = document.getElementById("ruleText");
+    ruleText.value = saved.ruleText || "";
+    ruleText.addEventListener("input", () => {
+      saved.ruleText = ruleText.value;
+      localStorage.setItem("ruleOfLife", JSON.stringify(saved));
+    });
+
+    document.getElementById("clearButton").addEventListener("click", () => {
+  // Clear all checkboxes and textarea
+  document.querySelectorAll(".habit").forEach(input => input.checked = false);
+  ruleText.value = "";
+
+  // Remove from localStorage
+  localStorage.removeItem(storageKey);
+
+  // Update saved object to empty
+  for (const key in saved) delete saved[key];
+
+  // Show confirmation message
+  const status = document.getElementById("saveStatus");
+  status.textContent = "🧹 Cleared today's data!";
+  setTimeout(() => status.textContent = "", 2500);
+});
+
+const jsonOutput = document.getElementById("jsonOutput");
+const copyButton = document.getElementById("copyJsonButton");
+const copyStatus = document.getElementById("copyStatus");
+
+// Function to update the JSON output textarea
+function updateJsonOutput() {
+  // Make sure saved object is synced with current form values
+  document.querySelectorAll(".habit").forEach(input => {
+    saved[input.dataset.habit] = input.checked;
+  });
+  saved.ruleText = ruleText.value;
+  const output = {
+    date: today,
+    ...saved
+  };
+
+  // Set pretty-printed JSON
+  jsonOutput.value = JSON.stringify(output, null, 2);
+}
+
+// Update JSON on load
+updateJsonOutput();
+
+// Update JSON whenever form inputs change
+document.querySelectorAll(".habit").forEach(input => {
+  input.addEventListener("change", updateJsonOutput);
+});
+ruleText.addEventListener("input", updateJsonOutput);
+
+// Copy to clipboard on button click
+copyButton.addEventListener("click", () => {
+  jsonOutput.select();
+  jsonOutput.setSelectionRange(0, 99999); // For mobile
+
+  try {
+    const successful = document.execCommand('copy');
+    if (successful) {
+      copyStatus.textContent = "✅ JSON copied to clipboard!";
+    } else {
+      copyStatus.textContent = "❌ Copy failed. Try manually.";
+    }
+  } catch (err) {
+    copyStatus.textContent = "❌ Copy failed. Try manually.";
+  }
+
+  setTimeout(() => {
+    copyStatus.textContent = "";
+    window.getSelection().removeAllRanges();
+  }, 2000);
+});
+
+
+  </script>
+</body>
+</html>
